@@ -1,0 +1,39 @@
+name: ActionGuard AutoAudit
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install ActionGuard and scanners
+        run: pip install -e '.[dev]' zizmor
+      - name: Run unit tests
+        run: pytest -q
+      - name: Run complete audit
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          REPORT_TO_EMAIL: ${{ secrets.REPORT_TO_EMAIL }}
+        run: python -m actionguard.cli audit . --html reports/actionguard-report.html --json reports/actionguard-report.json --email
+      - name: Upload audit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: actionguard-audit-report
+          path: |
+            reports/actionguard-report.html
+            reports/actionguard-report.json
+          retention-days: 7

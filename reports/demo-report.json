@@ -1,0 +1,523 @@
+{
+  "schema_version": "1.0",
+  "product": "ActionGuard AutoAudit",
+  "repository": "demo-vulnerable-repo",
+  "generated_at": "2026-07-17T18:52:41.970372+00:00",
+  "scores": {
+    "overall": 0,
+    "cicd": 0,
+    "secrets": 25,
+    "artifacts": 70,
+    "code_quality": 100,
+    "dependencies": 92,
+    "hygiene": 67
+  },
+  "summary": {
+    "critical": 7,
+    "high": 3,
+    "medium": 4,
+    "low": 3,
+    "info": 1
+  },
+  "scanner_status": {
+    "env_files": {
+      "status": "ok",
+      "count": 2
+    },
+    "secrets": {
+      "status": "ok",
+      "count": 2
+    },
+    "artifacts": {
+      "status": "ok",
+      "count": 2
+    },
+    "agentic": {
+      "status": "ok",
+      "count": 5
+    },
+    "hygiene": {
+      "status": "ok",
+      "count": 6
+    },
+    "zizmor": {
+      "status": "failed",
+      "detail": "missing"
+    },
+    "ruff": {
+      "status": "skipped"
+    },
+    "bandit": {
+      "status": "skipped"
+    },
+    "npm_audit": {
+      "status": "skipped"
+    },
+    "pip_audit": {
+      "status": "skipped"
+    }
+  },
+  "findings": [
+    {
+      "id": "AG-AI-004",
+      "source": "actionguard",
+      "category": "agentic",
+      "severity": "critical",
+      "title": "AI agent job has write permissions",
+      "file": ".github/workflows/unsafe.yml",
+      "line": 3,
+      "evidence": "AI-related job can write repository resources.",
+      "risk": "Compromised model instructions can alter code, releases, or deployments.",
+      "recommendation": "Split analysis into a read-only job; gate writes behind a reviewed, narrowly-scoped job.",
+      "patch_available": true,
+      "auto_fix_safe": false,
+      "patch_preview": "permissions:\n  contents: read",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-AI-001",
+      "source": "actionguard",
+      "category": "agentic",
+      "severity": "critical",
+      "title": "Untrusted event text reaches an AI agent",
+      "file": ".github/workflows/unsafe.yml",
+      "line": 7,
+      "evidence": "Untrusted contexts: github.event.comment.body",
+      "risk": "An attacker can steer an agent through issue, PR, or comment content.",
+      "recommendation": "Treat event text as untrusted data, delimit it, validate instructions, and isolate the agent in a read-only job.",
+      "patch_available": true,
+      "auto_fix_safe": false,
+      "patch_preview": "# Pass untrusted content through a validated data file; keep the agent job read-only.",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-AI-005",
+      "source": "actionguard",
+      "category": "agentic",
+      "severity": "critical",
+      "title": "Secrets exposed to agent consuming untrusted input",
+      "file": ".github/workflows/unsafe.yml",
+      "line": 12,
+      "evidence": "The same AI job receives secrets and attacker-controlled text.",
+      "risk": "Prompt injection may cause credential disclosure or misuse.",
+      "recommendation": "Remove secrets from the analysis job; use short-lived, scoped credentials only after approval.",
+      "patch_available": true,
+      "auto_fix_safe": false,
+      "patch_preview": "# Remove secrets from the untrusted-input job and pass only approved outputs forward.",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-AI-002",
+      "source": "actionguard",
+      "category": "agentic",
+      "severity": "critical",
+      "title": "AI output is executed as shell",
+      "file": ".github/workflows/unsafe.yml",
+      "line": 14,
+      "evidence": "Agent output is written to or evaluated by a shell.",
+      "risk": "Prompt injection can become arbitrary code execution.",
+      "recommendation": "Never execute model output. Use a strict typed allowlist and require human approval for privileged operations.",
+      "patch_available": true,
+      "auto_fix_safe": false,
+      "patch_preview": "- bash commands.sh\n+ python validate_plan.py commands.json\n+ # require_environment_approval",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-ENV-001",
+      "source": "actionguard",
+      "category": "secrets",
+      "severity": "critical",
+      "title": "Sensitive configuration file committed",
+      "file": ".env",
+      "line": 1,
+      "evidence": ".env is present in the repository.",
+      "risk": "Credentials may be exposed through source history and artifacts.",
+      "recommendation": "Remove the file from tracking, rotate every contained credential, purge history when necessary, and add an ignore rule.",
+      "patch_available": false,
+      "auto_fix_safe": false,
+      "patch_preview": "",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-SEC-001",
+      "source": "actionguard",
+      "category": "secrets",
+      "severity": "critical",
+      "title": "OpenAI API key detected",
+      "file": ".env",
+      "line": 1,
+      "evidence": "Redacted match: sk-pro...redacted",
+      "risk": "A usable credential may be exposed to anyone with repository access.",
+      "recommendation": "Revoke or rotate the credential immediately, remove it from history, and use GitHub encrypted secrets.",
+      "patch_available": false,
+      "auto_fix_safe": false,
+      "patch_preview": "",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-SEC-001",
+      "source": "actionguard",
+      "category": "secrets",
+      "severity": "critical",
+      "title": "Database URL with password detected",
+      "file": ".env",
+      "line": 2,
+      "evidence": "Redacted match: postgr...redacted",
+      "risk": "A usable credential may be exposed to anyone with repository access.",
+      "recommendation": "Revoke or rotate the credential immediately, remove it from history, and use GitHub encrypted secrets.",
+      "patch_available": false,
+      "auto_fix_safe": false,
+      "patch_preview": "",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-AI-003",
+      "source": "actionguard",
+      "category": "agentic",
+      "severity": "high",
+      "title": "Comment-triggered privileged action lacks trust check",
+      "file": ".github/workflows/unsafe.yml",
+      "line": 7,
+      "evidence": "Comment command is accepted without author_association validation.",
+      "risk": "Any commenter may trigger a sensitive workflow.",
+      "recommendation": "Require OWNER, MEMBER, or COLLABORATOR association and use environment approval.",
+      "patch_available": true,
+      "auto_fix_safe": false,
+      "patch_preview": "if: >\n  contains(github.event.comment.body, '/deploy') &&\n  contains(fromJson('[\"OWNER\",\"MEMBER\",\"COLLABORATOR\"]'), github.event.comment.author_association)",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-ART-001",
+      "source": "actionguard",
+      "category": "artifacts",
+      "severity": "high",
+      "title": "Artifact uploads the whole repository",
+      "file": ".github/workflows/unsafe.yml",
+      "line": 16,
+      "evidence": "upload-artifact path: '.'",
+      "risk": "Secrets, source, and local configuration may be published as an artifact.",
+      "recommendation": "Upload an explicit allowlist of build outputs and exclude secret-bearing extensions.",
+      "patch_available": true,
+      "auto_fix_safe": false,
+      "patch_preview": "path: |\n  dist/**\n  !dist/**/*.env\n  !dist/**/*.key\n  !dist/**/*.pem\nretention-days: 7",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-ART-003",
+      "source": "actionguard",
+      "category": "artifacts",
+      "severity": "high",
+      "title": "Artifact retention is too long",
+      "file": ".github/workflows/unsafe.yml",
+      "line": 20,
+      "evidence": "retention-days: 90",
+      "risk": "Sensitive data remains downloadable longer than necessary.",
+      "recommendation": "Reduce retention to 7 days or the minimum required.",
+      "patch_available": true,
+      "auto_fix_safe": true,
+      "patch_preview": "- retention-days: 90\n+ retention-days: 7",
+      "manual_review_required": false,
+      "metadata": {}
+    },
+    {
+      "id": "AG-HYG-003",
+      "source": "actionguard",
+      "category": "dependencies",
+      "severity": "medium",
+      "title": "Node lockfile missing",
+      "file": "package-lock.json",
+      "line": 1,
+      "evidence": "package.json exists without package-lock.json.",
+      "risk": "Dependency resolution is not reproducible.",
+      "recommendation": "Generate and commit a lockfile.",
+      "patch_available": false,
+      "auto_fix_safe": false,
+      "patch_preview": "",
+      "manual_review_required": true,
+      "metadata": {}
+    },
+    {
+      "id": "AG-HYG-001",
+      "source": "actionguard",
+      "category": "hygiene",
+      "severity": "medium",
+      "title": "Missing .github/dependabot.yml",
+      "file": ".github/dependabot.yml",
+      "line": 1,
+      "evidence": ".github/dependabot.yml was not found.",
+      "risk": "Repository governance and maintenance controls are incomplete.",
+      "recommendation": "Add .github/dependabot.yml using the provided template.",
+      "patch_available": true,
+      "auto_fix_safe": true,
+      "patch_preview": "+++ .github/dependabot.yml\n+# Add project-appropriate content",
+      "manual_review_required": false,
+      "metadata": {}
+    },
+    {
+      "id": "AG-ENV-002",
+      "source": "actionguard",
+      "category": "hygiene",
+      "severity": "medium",
+      "title": "Missing .gitignore",
+      "file": ".gitignore",
+      "line": 1,
+      "evidence": "No .gitignore found.",
+      "risk": "Sensitive local files may be committed.",
+      "recommendation": "Create .gitignore with environment and key patterns.",
+      "patch_available": true,
+      "auto_fix_safe": true,
+      "patch_preview": "+++ .gitignore\n+.env\n+.env.*\n+*.pem\n+*.key\n+credentials.json\n+service-account.json",
+      "manual_review_required": false,
+      "metadata": {}
+    },
+    {
+      "id": "AG-HYG-001",
+      "source": "actionguard",
+      "category": "hygiene",
+      "severity": "medium",
+      "title": "Missing .gitignore",
+      "file": ".gitignore",
+      "line": 1,
+      "evidence": ".gitignore was not found.",
+      "risk": "Repository governance and maintenance controls are incomplete.",
+      "recommendation": "Add .gitignore using the provided template.",
+      "patch_available": true,
+      "auto_fix_safe": true,
+      "patch_preview": "+++ .gitignore\n+# Add project-appropriate content",
+      "manual_review_required": false,
+      "metadata": {}
+    },
+    {
+      "id": "AG-HYG-001",
+      "source": "actionguard",
+      "category": "hygiene",
+      "severity": "low",
+      "title": "Missing CODEOWNERS",
+      "file": "CODEOWNERS",
+      "line": 1,
+      "evidence": "CODEOWNERS was not found.",
+      "risk": "Repository governance and maintenance controls are incomplete.",
+      "recommendation": "Add CODEOWNERS using the provided template.",
+      "patch_available": true,
+      "auto_fix_safe": true,
+      "patch_preview": "+++ CODEOWNERS\n+# Add project-appropriate content",
+      "manual_review_required": false,
+      "metadata": {}
+    },
+    {
+      "id": "AG-HYG-001",
+      "source": "actionguard",
+      "category": "hygiene",
+      "severity": "low",
+      "title": "Missing LICENSE",
+      "file": "LICENSE",
+      "line": 1,
+      "evidence": "LICENSE was not found.",
+      "risk": "Repository governance and maintenance controls are incomplete.",
+      "recommendation": "Add LICENSE using the provided template.",
+      "patch_available": true,
+      "auto_fix_safe": true,
+      "patch_preview": "+++ LICENSE\n+# Add project-appropriate content",
+      "manual_review_required": false,
+      "metadata": {}
+    },
+    {
+      "id": "AG-HYG-001",
+      "source": "actionguard",
+      "category": "hygiene",
+      "severity": "low",
+      "title": "Missing SECURITY.md",
+      "file": "SECURITY.md",
+      "line": 1,
+      "evidence": "SECURITY.md was not found.",
+      "risk": "Repository governance and maintenance controls are incomplete.",
+      "recommendation": "Add SECURITY.md using the provided template.",
+      "patch_available": true,
+      "auto_fix_safe": true,
+      "patch_preview": "+++ SECURITY.md\n+# Add project-appropriate content",
+      "manual_review_required": false,
+      "metadata": {}
+    },
+    {
+      "id": "AG-TOOL-ZIZMOR",
+      "source": "actionguard",
+      "category": "cicd",
+      "severity": "info",
+      "title": "zizmor unavailable or failed",
+      "file": "",
+      "line": 1,
+      "evidence": "Status: missing",
+      "risk": "Coverage from this optional scanner is unavailable.",
+      "recommendation": "Install/configure zizmor; other audits completed normally.",
+      "patch_available": false,
+      "auto_fix_safe": false,
+      "patch_preview": "",
+      "manual_review_required": true,
+      "metadata": {}
+    }
+  ],
+  "remediation_plan": [
+    {
+      "finding_id": "AG-AI-004",
+      "severity": "critical",
+      "title": "AI agent job has write permissions",
+      "action": "Split analysis into a read-only job; gate writes behind a reviewed, narrowly-scoped job.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": "permissions:\n  contents: read"
+    },
+    {
+      "finding_id": "AG-AI-001",
+      "severity": "critical",
+      "title": "Untrusted event text reaches an AI agent",
+      "action": "Treat event text as untrusted data, delimit it, validate instructions, and isolate the agent in a read-only job.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": "# Pass untrusted content through a validated data file; keep the agent job read-only."
+    },
+    {
+      "finding_id": "AG-AI-005",
+      "severity": "critical",
+      "title": "Secrets exposed to agent consuming untrusted input",
+      "action": "Remove secrets from the analysis job; use short-lived, scoped credentials only after approval.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": "# Remove secrets from the untrusted-input job and pass only approved outputs forward."
+    },
+    {
+      "finding_id": "AG-AI-002",
+      "severity": "critical",
+      "title": "AI output is executed as shell",
+      "action": "Never execute model output. Use a strict typed allowlist and require human approval for privileged operations.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": "- bash commands.sh\n+ python validate_plan.py commands.json\n+ # require_environment_approval"
+    },
+    {
+      "finding_id": "AG-ENV-001",
+      "severity": "critical",
+      "title": "Sensitive configuration file committed",
+      "action": "Remove the file from tracking, rotate every contained credential, purge history when necessary, and add an ignore rule.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": ""
+    },
+    {
+      "finding_id": "AG-SEC-001",
+      "severity": "critical",
+      "title": "OpenAI API key detected",
+      "action": "Revoke or rotate the credential immediately, remove it from history, and use GitHub encrypted secrets.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": ""
+    },
+    {
+      "finding_id": "AG-AI-003",
+      "severity": "high",
+      "title": "Comment-triggered privileged action lacks trust check",
+      "action": "Require OWNER, MEMBER, or COLLABORATOR association and use environment approval.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": "if: >\n  contains(github.event.comment.body, '/deploy') &&\n  contains(fromJson('[\"OWNER\",\"MEMBER\",\"COLLABORATOR\"]'), github.event.comment.author_association)"
+    },
+    {
+      "finding_id": "AG-ART-001",
+      "severity": "high",
+      "title": "Artifact uploads the whole repository",
+      "action": "Upload an explicit allowlist of build outputs and exclude secret-bearing extensions.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": "path: |\n  dist/**\n  !dist/**/*.env\n  !dist/**/*.key\n  !dist/**/*.pem\nretention-days: 7"
+    },
+    {
+      "finding_id": "AG-ART-003",
+      "severity": "high",
+      "title": "Artifact retention is too long",
+      "action": "Reduce retention to 7 days or the minimum required.",
+      "auto_fix_safe": true,
+      "manual_review_required": false,
+      "patch_preview": "- retention-days: 90\n+ retention-days: 7"
+    },
+    {
+      "finding_id": "AG-HYG-003",
+      "severity": "medium",
+      "title": "Node lockfile missing",
+      "action": "Generate and commit a lockfile.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": ""
+    },
+    {
+      "finding_id": "AG-HYG-001",
+      "severity": "medium",
+      "title": "Missing .github/dependabot.yml",
+      "action": "Add .github/dependabot.yml using the provided template.",
+      "auto_fix_safe": true,
+      "manual_review_required": false,
+      "patch_preview": "+++ .github/dependabot.yml\n+# Add project-appropriate content"
+    },
+    {
+      "finding_id": "AG-ENV-002",
+      "severity": "medium",
+      "title": "Missing .gitignore",
+      "action": "Create .gitignore with environment and key patterns.",
+      "auto_fix_safe": true,
+      "manual_review_required": false,
+      "patch_preview": "+++ .gitignore\n+.env\n+.env.*\n+*.pem\n+*.key\n+credentials.json\n+service-account.json"
+    },
+    {
+      "finding_id": "AG-HYG-001",
+      "severity": "medium",
+      "title": "Missing .gitignore",
+      "action": "Add .gitignore using the provided template.",
+      "auto_fix_safe": true,
+      "manual_review_required": false,
+      "patch_preview": "+++ .gitignore\n+# Add project-appropriate content"
+    },
+    {
+      "finding_id": "AG-HYG-001",
+      "severity": "low",
+      "title": "Missing CODEOWNERS",
+      "action": "Add CODEOWNERS using the provided template.",
+      "auto_fix_safe": true,
+      "manual_review_required": false,
+      "patch_preview": "+++ CODEOWNERS\n+# Add project-appropriate content"
+    },
+    {
+      "finding_id": "AG-HYG-001",
+      "severity": "low",
+      "title": "Missing LICENSE",
+      "action": "Add LICENSE using the provided template.",
+      "auto_fix_safe": true,
+      "manual_review_required": false,
+      "patch_preview": "+++ LICENSE\n+# Add project-appropriate content"
+    },
+    {
+      "finding_id": "AG-HYG-001",
+      "severity": "low",
+      "title": "Missing SECURITY.md",
+      "action": "Add SECURITY.md using the provided template.",
+      "auto_fix_safe": true,
+      "manual_review_required": false,
+      "patch_preview": "+++ SECURITY.md\n+# Add project-appropriate content"
+    },
+    {
+      "finding_id": "AG-TOOL-ZIZMOR",
+      "severity": "info",
+      "title": "zizmor unavailable or failed",
+      "action": "Install/configure zizmor; other audits completed normally.",
+      "auto_fix_safe": false,
+      "manual_review_required": true,
+      "patch_preview": ""
+    }
+  ]
+}
