@@ -1,6 +1,10 @@
 from pathlib import Path
 import yaml
-class ActionsLoader(yaml.SafeLoader): pass
+class ActionsLoader(yaml.SafeLoader):
+    # Resolver tables are inherited by reference; keep workflow parsing local.
+    yaml_implicit_resolvers = {
+        ch: list(resolvers) for ch, resolvers in yaml.SafeLoader.yaml_implicit_resolvers.items()
+    }
 for ch, resolvers in list(ActionsLoader.yaml_implicit_resolvers.items()):
     ActionsLoader.yaml_implicit_resolvers[ch]=[(tag,rx) for tag,rx in resolvers if tag!='tag:yaml.org,2002:bool']
 def load_yaml(path: Path):
